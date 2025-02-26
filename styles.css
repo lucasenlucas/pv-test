@@ -1,33 +1,66 @@
+/* Algemeen */
 body {
   font-family: Arial, sans-serif;
-  margin: 20px;
-}
-
-h1 {
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
   text-align: center;
 }
 
-button {
-  background-color: #4CAF50;
+/* Header */
+header {
+  background-color: #1e88e5;
   color: white;
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-  margin: 10px;
+  padding: 20px;
 }
 
-button:hover {
-  background-color: #45a049;
+h1 {
+  margin: 0;
+  font-size: 36px;
 }
 
-#quote-form {
+#auth-container {
   margin-top: 20px;
 }
 
-input, textarea {
-  width: 100%;
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #1e88e5;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0d47a1;
+}
+
+/* Quotes */
+#quotes-container {
+  margin-top: 40px;
+}
+
+.quote {
+  background-color: white;
+  margin: 15px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.quote h3 {
+  font-size: 24px;
+  color: #333;
+}
+
+.quote p {
+  color: #555;
+}
+
+footer {
+  margin-top: 40px;
+  background-color: #1e88e5;
+  color: white;
   padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
 }
