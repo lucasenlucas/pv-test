@@ -1,88 +1,72 @@
+// Importeren van de benodigde modules van Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+
 // Firebase configuratie
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyA2CswfIUCYWO_czyHTCyy_bz59YxgLQ_Y",
+  authDomain: "parentvibes-dd47f.firebaseapp.com",
+  projectId: "parentvibes-dd47f",
+  storageBucket: "parentvibes-dd47f.firebasestorage.app",
+  messagingSenderId: "892249103159",
+  appId: "1:892249103159:web:62889923f1e476448f58b2"
 };
 
-const app = firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const firestore = firebase.firestore();
+// Initialiseren van Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+const db = getFirestore(app);
 
-// Login met Google
-const loginBtn = document.getElementById('login-btn');
-const quoteForm = document.getElementById('quote-form');
-const submitQuoteBtn = document.getElementById('submit-quote');
-const titleInput = document.getElementById('title');
-const textInput = document.getElementById('text');
-
-// Login functionaliteit
-loginBtn.addEventListener('click', () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
+// Functie voor Google login
+function loginWithGoogle() {
+  signInWithPopup(auth, provider)
     .then((result) => {
       const user = result.user;
       console.log("Ingelogd als:", user.displayName);
-      quoteForm.style.display = 'block';
+      // Na inloggen, laat de quotes zien
+      loadQuotes();
     })
     .catch((error) => {
-      console.log("Fout bij inloggen:", error);
+      console.error("Fout bij inloggen:", error);
     });
-});
+}
 
-// Quote toevoegen
-submitQuoteBtn.addEventListener('click', () => {
-  const title = titleInput.value;
-  const text = textInput.value;
-
-  if (title && text && auth.currentUser) {
-    firestore.collection('quotes').add({
+// Functie om quotes toe te voegen aan Firestore
+async function addQuote(title, text) {
+  try {
+    const docRef = await addDoc(collection(db, "quotes"), {
       title: title,
       text: text,
-      user: auth.currentUser.displayName,
+      timestamp: serverTimestamp(),
       upvotes: 0,
       downvotes: 0,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-    })
-    .then(() => {
-      console.log("Quote toegevoegd!");
-      loadQuotes();
-      titleInput.value = '';
-      textInput.value = '';
-    })
-    .catch((error) => {
-      console.log("Fout bij toevoegen van quote:", error);
     });
-  } else {
-    alert("Vul alle velden in!");
+    console.log("Quote toegevoegd met ID:", docRef.id);
+  } catch (e) {
+    console.error("Fout bij toevoegen quote:", e);
   }
-});
+}
 
-// Quotes laden
-const loadQuotes = () => {
-  firestore.collection('quotes')
-    .orderBy('upvotes', 'desc')
-    .limit(20)
-    .onSnapshot((snapshot) => {
-      const quoteList = document.getElementById('quote-list');
-      quoteList.innerHTML = '';  // Clear existing quotes
+// Functie om quotes te laden en weer te geven
+async function loadQuotes() {
+  const querySnapshot = await getDocs(query(collection(db, "quotes"), orderBy("timestamp", "desc"), limit(20)));
+  const quotesContainer = document.getElementById("quotes-container");
+  quotesContainer.innerHTML = "";  // Verwijder oude quotes
 
-      snapshot.forEach(doc => {
-        const quote = doc.data();
-        const li = document.createElement('li');
-        li.innerHTML = `
-          <strong>${quote.title}</strong>: ${quote.text} <br>
-          <em>Door: ${quote.user}</em> <br>
-          <span>Upvotes: ${quote.upvotes}</span> | 
-          <span>Downvotes: ${quote.downvotes}</span>
-        `;
-        quoteList.appendChild(li);
-      });
-    });
-};
+  querySnapshot.forEach((doc) => {
+    const quoteData = doc.data();
+    const quoteElement = document.createElement("div");
+    quoteElement.classList.add("quote");
+    quoteElement.innerHTML = `
+      <h3>${quoteData.title}</h3>
+      <p>${quoteData.text}</p>
+      <p><strong>Upvotes:</strong> ${quoteData.upvotes} | <strong>Downvotes:</strong> ${quoteData.downvotes}</p>
+    `;
+    quotesContainer.appendChild(quoteElement);
+  });
+}
 
-// Oproep om de quotes te laden bij het laden van de pagina
-loadQuotes();
+// Event listener voor de login knop
+document.getElementById("login-btn").addEventListener("click", loginWithGoogle);
