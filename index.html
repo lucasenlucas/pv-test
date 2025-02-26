@@ -3,27 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ParentVibes</title>
-  <link rel="stylesheet" href="style.css">
+  <title>ParentVibes - Login</title>
+  <style>
+    /* Algemene stijlen */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      text-align: center;
+    }
+    /* Header */
+    header {
+      background-color: #1e88e5;
+      color: white;
+      padding: 20px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 36px;
+    }
+    #auth-container {
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #1e88e5;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0d47a1;
+    }
+    footer {
+      margin-top: 40px;
+      background-color: #1e88e5;
+      color: white;
+      padding: 10px;
+    }
+  </style>
 </head>
 <body>
   <header>
     <h1>ParentVibes</h1>
-    <p>De beste quotes over ouders, door kinderen!</p>
+    <p>Log in om quotes over ouders te bekijken en te delen!</p>
   </header>
 
   <div id="auth-container">
     <button id="login-btn">Login with Google</button>
   </div>
 
-  <div id="quotes-container">
-    <!-- Quotes komen hier te staan -->
-  </div>
-
   <footer>
     <p>&copy; 2025 ParentVibes</p>
   </footer>
 
-  <script type="module" src="app.js"></script>
+  <script type="module">
+    // Firebase configuratie
+    const firebaseConfig = {
+      apiKey: "AIzaSyA2CswfIUCYWO_czyHTCyy_bz59YxgLQ_Y",
+      authDomain: "parentvibes-dd47f.firebaseapp.com",
+      projectId: "parentvibes-dd47f",
+      storageBucket: "parentvibes-dd47f.firebasestorage.app",
+      messagingSenderId: "892249103159",
+      appId: "1:892249103159:web:62889923f1e476448f58b2"
+    };
+
+    // Firebase importeren
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+
+    // Firebase initialiseren
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // Functie voor Google-login
+    function loginWithGoogle() {
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const user = result.user;
+          console.log("Ingelogd als:", user.displayName);
+          // Stuur gebruiker naar het dashboard na login
+          window.location.href = 'dashboard.html';
+        })
+        .catch((error) => {
+          console.error("Fout bij inloggen:", error);
+        });
+    }
+
+    // Event listener voor de login-knop
+    document.getElementById('login-btn').addEventListener('click', loginWithGoogle);
+  </script>
 </body>
 </html>
