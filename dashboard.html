@@ -4,7 +4,68 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ParentVibes - Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Algemene stijlen */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      text-align: center;
+    }
+    /* Header */
+    header {
+      background-color: #1e88e5;
+      color: white;
+      padding: 20px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 36px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #1e88e5;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0d47a1;
+    }
+    /* Formulier voor het toevoegen van quotes */
+    #quote-form {
+      margin-top: 20px;
+    }
+    input, textarea {
+      width: 80%;
+      padding: 10px;
+      margin: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    textarea {
+      height: 150px;
+    }
+    /* Quotes-container */
+    #quotes-container {
+      margin-top: 40px;
+    }
+    .quote {
+      background-color: white;
+      margin: 15px;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    footer {
+      margin-top: 40px;
+      background-color: #1e88e5;
+      color: white;
+      padding: 10px;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -31,6 +92,85 @@
     <p>&copy; 2025 ParentVibes</p>
   </footer>
 
-  <script type="module" src="dashboard.js"></script>
+  <script type="module">
+    // Firebase configuratie
+    const firebaseConfig = {
+      apiKey: "AIzaSyA2CswfIUCYWO_czyHTCyy_bz59YxgLQ_Y",
+      authDomain: "parentvibes-dd47f.firebaseapp.com",
+      projectId: "parentvibes-dd47f",
+      storageBucket: "parentvibes-dd47f.firebasestorage.app",
+      messagingSenderId: "892249103159",
+      appId: "1:892249103159:web:62889923f1e476448f58b2"
+    };
+
+    // Firebase importeren
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+
+    // Firebase initialiseren
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Functie om quotes toe te voegen aan Firestore
+    async function addQuote(title, text) {
+      try {
+        const docRef = await addDoc(collection(db, "quotes"), {
+          title: title,
+          text: text,
+          timestamp: serverTimestamp(),
+          upvotes: 0,
+          downvotes: 0,
+        });
+        console.log("Quote toegevoegd met ID:", docRef.id);
+        loadQuotes(); // Herlaad de quotes na toevoegen
+      } catch (e) {
+        console.error("Fout bij toevoegen quote:", e);
+      }
+    }
+
+    // Functie om quotes te laden van Firestore
+    async function loadQuotes() {
+      const querySnapshot = await getDocs(query(collection(db, "quotes"), orderBy("timestamp", "desc"), limit(20)));
+      const quotesContainer = document.getElementById("quotes-container");
+      quotesContainer.innerHTML = ""; // Verwijder oude quotes
+
+      querySnapshot.forEach((doc) => {
+        const quoteData = doc.data();
+        const quoteElement = document.createElement("div");
+        quoteElement.classList.add("quote");
+        quoteElement.innerHTML = `
+          <h3>${quoteData.title}</h3>
+          <p>${quoteData.text}</p>
+          <p><strong>Upvotes:</strong> ${quoteData.upvotes} | <strong>Downvotes:</strong> ${quoteData.downvotes}</p>
+        `;
+        quotesContainer.appendChild(quoteElement);
+      });
+    }
+
+    // Functie voor uitloggen
+    function logout() {
+      signOut(auth).then(() => {
+        window.location.href = 'index.html'; // Stuur naar de loginpagina
+      }).catch((error) => {
+        console.error("Fout bij uitloggen:", error);
+      });
+    }
+
+    // Event listener voor uitloggen
+    document.getElementById('logout-btn').addEventListener('click', logout);
+
+    // Event listener voor het quoteform
+    document.getElementById('quoteForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const title = document.getElementById('title').value;
+      const text = document.getElementById('text').value;
+      addQuote(title, text);
+    });
+
+    // Laad de quotes bij het laden van de pagina
+    loadQuotes();
+  </script>
 </body>
 </html>
