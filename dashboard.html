@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ParentVibes - Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>ParentVibes Dashboard</h1>
+    <p>Bekijk en deel je favoriete quotes over ouders!</p>
+    <button id="logout-btn">Log out</button>
+  </header>
+
+  <div id="quote-form">
+    <h2>Voeg een nieuwe quote toe</h2>
+    <form id="quoteForm">
+      <input type="text" id="title" placeholder="Titel van de quote" required>
+      <textarea id="text" placeholder="Schrijf hier de quote" required></textarea>
+      <button type="submit">Voeg toe</button>
+    </form>
+  </div>
+
+  <div id="quotes-container">
+    <h2>Populaire Quotes</h2>
+    <!-- Quotes komen hier te staan -->
+  </div>
+
+  <footer>
+    <p>&copy; 2025 ParentVibes</p>
+  </footer>
+
+  <script type="module" src="dashboard.js"></script>
+</body>
+</html>
